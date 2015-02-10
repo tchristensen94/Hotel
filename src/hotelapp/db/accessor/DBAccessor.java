@@ -41,5 +41,6 @@ public interface DBAccessor {
     void openConn(String driver, String url, String user, String pass) throws SQLException, ClassNotFoundException;
 
     void updateRecord(String table, String pk, int id, String[] keys, String[] values, boolean keepAlive) throws Exception;
-    
+   
+    Map<String, Object> findRecord(String table, String pk, int id, boolean keepAlive) throws Exception;
 }

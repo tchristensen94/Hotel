@@ -16,13 +16,47 @@ public class Hotel {
     private long id;
     private String name;
     private String address;
-    private int rooms;
+    private String city;
+    private String state;
+    private String zip;
+    private String notes;
     
-    public Hotel(long id, String name, String address, int rooms) {
+    public Hotel(long id, String name, String address, String city, String state, String zip, String notes) {
         setId(id);
         setName(name);
         setAddress(address);
-        setRooms(rooms);
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getZip() {
+        return zip;
+    }
+
+    public void setZip(String zip) {
+        this.zip = zip;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
     
     public final long getId() {
@@ -49,18 +83,14 @@ public class Hotel {
         this.address = address;
     }
 
-    public final int getRooms() {
-        return rooms;
-    }
-
-    public final void setRooms(int rooms) {
-        this.rooms = rooms;
-    }
-
     @Override
     public String toString() {
-        return "Hotel{" + "id=" + id + ", name=" + name + ", address=" + address + ", rooms=" + rooms + '}';
+        return "Hotel{" + "id=" + id + ", name=" + name + ", address=" + address + ", city=" + city + ", state=" + state + ", zip=" + zip + ", notes=" + notes + '}';
     }
+
+    
+
+
 
     @Override
     public int hashCode() {

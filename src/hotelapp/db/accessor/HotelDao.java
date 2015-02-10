@@ -6,6 +6,7 @@
 package hotelapp.db.accessor;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -22,6 +23,11 @@ public class HotelDao {
     public List findHotels() throws Exception {
         openLocalConn();
         return db.getAllRecords("hotels", true);
+    }
+    
+    public Map<String, Object> findHotel(String table, String pk, int id) throws Exception {
+        openLocalConn();
+        return db.findRecord(table, pk, id, true);
     }
 
     public void deleteHotel(String table, String pk, int id) throws Exception {

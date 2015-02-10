@@ -16,13 +16,13 @@ import java.util.Map;
  * @author tim
  */
 public class DB_MySql implements DBAccessor {
-    
+
     private Connection conn;
-    
+
     public DB_MySql() {
-        
+
     }
-    
+
     /**
      *
      * @param driver
@@ -32,16 +32,18 @@ public class DB_MySql implements DBAccessor {
      */
     @Override
     public void openConn(String driver, String url, String user, String pass) throws SQLException, ClassNotFoundException {
-        if(url == null) throw new IllegalArgumentException("Url must not be null");
+        if (url == null) {
+            throw new IllegalArgumentException("Url must not be null");
+        }
         Class.forName(driver);
         conn = DriverManager.getConnection(url, user, pass);
     }
-    
+
     @Override
     public void close() throws SQLException {
         conn.close();
     }
-    
+
     @Override
     public List<Map<String, Object>> getAllRecords(String table, boolean keepAlive) throws Exception {
         List<Map<String, Object>> records = new ArrayList<>();
@@ -55,122 +57,153 @@ public class DB_MySql implements DBAccessor {
             metaData = rs.getMetaData();
             int fields = metaData.getColumnCount();
             Map<String, Object> temp = new HashMap<>();
-            while(rs.next()) {
-                for(int i = 1; i <= fields; i++) {
+            while (rs.next()) {
+                for (int i = 1; i <= fields; i++) {
                     temp.put(metaData.getColumnName(i), rs.getObject(i));
                 }
-                
+
                 records.add(temp);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw e;
         } finally {
             try {
                 s.close();
-                if(!keepAlive) conn.close();
-            } catch(Exception e) {
+                if (!keepAlive) {
+                    conn.close();
+                }
+            } catch (Exception e) {
                 throw e;
             }
         }
         return records;
     }
-    
+
     /**
      * Inserts a record of strings into specified table
+     *
      * @param table table to do the insert on
      * @param keys the keys
      * @param values the values
      * @param keepAlive whether or not to keep alive
-     * @throws Exception 
+     * @throws Exception
      */
     @Override
     public void insertRecord(String table, String[] keys, String[] values, boolean keepAlive) throws Exception {
         PreparedStatement ps = null;
         String insertString = "INSERT INTO " + table + "(";
-        
-        for(int i = 1; i <= keys.length; i++) {
-            if(i == keys.length) {
+
+        for (int i = 1; i <= keys.length; i++) {
+            if (i == keys.length) {
                 insertString += keys[i];
             } else {
-            insertString += keys[i] + ", ";
+                insertString += keys[i] + ", ";
             }
         }
         insertString += ") VALUES (";
-        for(int i = 1; i <= keys.length; i++) {
-            if(i == keys.length) {
+        for (int i = 1; i <= keys.length; i++) {
+            if (i == keys.length) {
                 insertString += "?)";
             } else {
-            insertString += "?,";
+                insertString += "?,";
             }
         }
         ps = conn.prepareStatement(insertString);
-        for(int i = 0; i < keys.length; i++) {
+        for (int i = 0; i < keys.length; i++) {
             ps.setString(i, values[i]);
         }
         ps.executeUpdate();
         ps.close();
-        if(!keepAlive) conn.close();
+        if (!keepAlive) {
+            conn.close();
+        }
     }
-    
+
     @Override
     public void updateRecord(String table, String pk, int id, String[] keys, String[] values, boolean keepAlive) throws Exception {
         PreparedStatement ps = null;
         String insertString = "UPDATE " + table + " SET (";
-        
-        for(int i = 1; i <= keys.length; i++) {
-            if(i == keys.length) {
+
+        for (int i = 1; i <= keys.length; i++) {
+            if (i == keys.length) {
                 insertString += keys[i];
             } else {
-            insertString += keys[i] + ", ";
+                insertString += keys[i] + ", ";
             }
         }
         insertString += ") VALUES (";
-        for(int i = 0; i < keys.length; i++) {
-            if(i == keys.length) {
+        for (int i = 0; i < keys.length; i++) {
+            if (i == keys.length) {
                 insertString += "?)";
             } else {
-            insertString += "?,";
+                insertString += "?,";
             }
         }
-        insertString += " WHERE " + pk + " = " + id; 
+        insertString += " WHERE " + pk + " = " + id;
         ps = conn.prepareStatement(insertString);
-        for(int i = 1; i <= keys.length; i++) {
+        for (int i = 1; i <= keys.length; i++) {
             ps.setString(i, values[i]);
         }
         ps.executeUpdate();
         ps.close();
-        if(!keepAlive) conn.close();
+        if (!keepAlive) {
+            conn.close();
+        }
     }
-    
+
     @Override
-    public void deleteRecord(String table, String pk, int id, boolean keepAlive) throws Exception{
+    public void deleteRecord(String table, String pk, int id, boolean keepAlive) throws Exception {
         String sql = "DELETE " + table + " WHERE " + pk + " = ?";
-        
-        PreparedStatement ps = conn.prepareStatement(sql);
-        
-        ps.setInt(1, id);
-        
-        ps.executeUpdate();
-        ps.close();
-        if(!keepAlive) conn.close();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            
+            ps.executeUpdate();
+        }
+        if (!keepAlive) {
+            conn.close();
+        }
     }
-    
+
     public static void main(String args[]) {
         DB_MySql db = new DB_MySql();
         /*db.openConn("com.mysql.jdbc.Driver", 
-           "jdbc:mysql://localhost:3306/employeedb", 
-           "root", "");
+         "jdbc:mysql://localhost:3306/employeedb", 
+         "root", "");
             
-        List<Map<String, Object>> records = db.getAllRecords("employee", true);
-        for(Map<String, Object> record : records) {
-            System.out.println(record);
-        }*/
+         List<Map<String, Object>> records = db.getAllRecords("employee", true);
+         for(Map<String, Object> record : records) {
+         System.out.println(record);
+         }*/
         try {
-        String[] a = {"x", "y", "z"};
-        String[] b = {"a", "b", "c"};
-        db.insertRecord("test", a, b, true);
-        } catch(Exception e) {
+            String[] a = {"x", "y", "z"};
+            String[] b = {"a", "b", "c"};
+            db.insertRecord("test", a, b, true);
+        } catch (Exception e) {
             //Something
         }
+    }
+
+    @Override
+    public Map<String, Object> findRecord(String table, String pk, int id, boolean keepAlive) throws Exception {
+        String sql = "SELECT * FROM " + table + " WHERE " + pk + " = ?";
+
+        Map<String, Object> result;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int fields = metaData.getColumnCount();
+            result = new HashMap<>();
+            while (rs.next()) {
+                for (int i = 1; i <= fields; i++) {
+                    result.put(metaData.getColumnName(i), rs.getObject(i));
+                }
+            }
+        }
+        if (!keepAlive) {
+            conn.close();
+        }
+        return result;
     }
 }
